@@ -1,0 +1,42 @@
+{% extends 'master/base.html' %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-7">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <h3 class="mb-0">{{ user.get_full_name|default:user.username }}</h3>
+                        <p class="text-muted mb-2">@{{ user.username }}</p>
+                        <span class="badge bg-info text-dark">{{ profile.get_role_display }}</span>
+                    </div>
+                    <a href="{% url 'update_profile' %}" class="btn btn-outline-primary btn-sm">Edit Profile</a>
+                </div>
+                <hr>
+                <dl class="row mb-0">
+                    <dt class="col-sm-3">Email</dt>
+                    <dd class="col-sm-9">{{ user.email|default:"-" }}</dd>
+
+                    <dt class="col-sm-3">Phone</dt>
+                    <dd class="col-sm-9">{{ profile.phone|default:"-" }}</dd>
+
+                    <dt class="col-sm-3">Location</dt>
+                    <dd class="col-sm-9">{{ profile.location|default:"-" }}</dd>
+
+                    {% if profile.role == 'seeker' %}
+                    <dt class="col-sm-3">Skills</dt>
+                    <dd class="col-sm-9">
+                        {% for skill in profile.skills_list %}
+                            <span class="badge bg-secondary">{{ skill }}</span>
+                        {% empty %}-{% endfor %}
+                    </dd>
+                    {% endif %}
+
+                    <dt class="col-sm-3">Bio</dt>
+                    <dd class="col-sm-9" style="white-space: pre-line;">{{ profile.bio|default:"-" }}</dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

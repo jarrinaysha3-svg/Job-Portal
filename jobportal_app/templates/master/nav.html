@@ -15,9 +15,8 @@
                         <a class="nav-link" href="{% url 'my_applications' %}">My Applications</a>
                     </li>
                 {% endif %}
-
                 <li class="nav-item">
-                    <a class="nav-link" href="{% url 'update_profile' %}">Profile ({{ user.username }})</a>
+                <a class="nav-link" href="{% url 'profile_view' %}">Profile ({{ user.username }})</a>
                 </li>
                 <li class="nav-item"><a class="nav-link" href="{% url 'logout_view' %}">Logout</a></li>
 

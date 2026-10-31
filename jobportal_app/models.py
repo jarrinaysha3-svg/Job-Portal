@@ -16,6 +16,10 @@ class ProfileModel(models.Model):
     def __str__(self):
         return f"{self.user.username} ({self.role})"
 
+    @property
+    def skills_list(self):
+        return [s.strip() for s in self.skills.split(',') if s.strip()]
+
 
 class CompanyModel(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)

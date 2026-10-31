@@ -43,7 +43,7 @@
         {% for app in applications %}
         <tr>
             <td>
-                {{ app.user.username }}
+                {{ app.user.get_full_name|default:app.user.username }}
                 {% if app.user.profilemodel.phone %}<br><small class="text-muted">{{ app.user.profilemodel.phone }}</small>{% endif %}
                 {% if app.user.profilemodel.skills %}<br><small>Skills: {{ app.user.profilemodel.skills }}</small>{% endif %}
             </td>

@@ -4,7 +4,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.db.models import Count, Q
 from django.utils import timezone
-from jobportal_app.forms import RegisterForm, LoginForm, CompanyForm, JobForm, ApplicationForm, ProfileForm
+from jobportal_app.forms import RegisterForm, LoginForm, CompanyForm, JobForm, ApplicationForm, ProfileForm, UserUpdateForm
 from jobportal_app.models import ProfileModel, CompanyModel, JobModel, ApplicationModel
 from jobportal_app.decorators import employer_required, seeker_required
 from django.views.decorators.http import require_POST
@@ -326,17 +326,25 @@ def update_application_status(request, id):
 def update_profile(request):
     profile = get_object_or_404(ProfileModel, user=request.user)
     if request.method == 'POST':
-        form = ProfileForm(request.POST, instance=profile)
-        if form.is_valid():
-            form.save()
+        user_form = UserUpdateForm(request.POST, instance=request.user)
+        profile_form = ProfileForm(request.POST, instance=profile)
+        if user_form.is_valid() and profile_form.is_valid():
+            user_form.save()
+            profile_form.save()
             messages.success(request, 'Profile updated successfully.')
-            return redirect('update_profile')
+            return redirect('profile_view')
     else:
-        form = ProfileForm(instance=profile)
+        user_form = UserUpdateForm(instance=request.user)
+        profile_form = ProfileForm(instance=profile)
     context = {
-        'form_data': form,
-        'form_title': 'My Profile',
-        'form_btn': 'Save Profile',
+        'user_form': user_form,
+        'profile_form': profile_form,
         'title': 'My Profile',
     }
-    return render(request, 'master/base_form.html', context)
+    return render(request, 'profile.html', context)
+
+@login_required
+def profile_view(request):
+    profile = get_object_or_404(ProfileModel, user=request.user)
+    context = {'profile': profile, 'title': 'My Profile'}
+    return render(request, 'profile_view.html', context)

@@ -1,0 +1,20 @@
+{% extends 'master/base.html' %}
+{% load crispy_forms_tags %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <h3 class="mb-1">Edit Profile</h3>
+        <p class="text-muted">
+            Username: <strong>{{ user.username }}</strong> &middot;
+            Role: <span class="badge bg-info text-dark">{{ user.profilemodel.get_role_display }}</span>
+        </p>
+        <form method="post">
+            {% csrf_token %}
+            {{ user_form|crispy }}
+            {{ profile_form|crispy }}
+            <button type="submit" class="btn btn-primary">Save Profile</button>
+            <a href="{% url 'profile_view' %}" class="btn btn-secondary">Cancel</a>
+        </form>
+    </div>
+</div>
+{% endblock %}
