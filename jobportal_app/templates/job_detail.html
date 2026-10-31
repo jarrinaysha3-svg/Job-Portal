@@ -1,0 +1,46 @@
+{% extends 'master/base.html' %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-9">
+        <div class="card">
+            <div class="card-body">
+                <h3>{{ job.title }}</h3>
+                <p class="mb-2">
+                    <strong>{{ job.company.name }}</strong> &middot; {{ job.location }}
+                </p>
+                <p>
+                    <span class="badge bg-info text-dark">{{ job.get_job_type_display }}</span>
+                    {% if job.salary_min and job.salary_max %}
+                        <span class="badge bg-light text-dark border">{{ job.salary_min }} - {{ job.salary_max }}</span>
+                    {% endif %}
+                    <span class="badge bg-light text-dark border">Deadline: {{ job.deadline }}</span>
+                </p>
+                <hr>
+                <h5>Job Description</h5>
+                <p style="white-space: pre-line;">{{ job.description }}</p>
+
+                {% if job.company.description %}
+                    <hr>
+                    <h5>About {{ job.company.name }}</h5>
+                    <p>{{ job.company.description }}</p>
+                {% endif %}
+                <hr>
+
+                {% if not user.is_authenticated %}
+                    <a href="{% url 'login_view' %}" class="btn btn-primary">Login to apply</a>
+                {% elif user.profilemodel.role == 'seeker' %}
+                    {% if has_applied %}
+                        <span class="badge bg-success p-2">You have applied</span>
+                        <a href="{% url 'my_applications' %}" class="btn btn-link">View my applications</a>
+                    {% elif is_open %}
+                        <a href="{% url 'apply_job' job.id %}" class="btn btn-primary">Apply Now</a>
+                    {% else %}
+                        <span class="badge bg-secondary p-2">Applications closed</span>
+                    {% endif %}
+                {% endif %}
+                <a href="{% url 'home_view' %}" class="btn btn-link">Back to jobs</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

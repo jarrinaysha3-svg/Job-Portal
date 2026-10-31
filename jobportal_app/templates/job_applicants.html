@@ -1,0 +1,94 @@
+{% extends 'master/base.html' %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h3 class="mb-0">Applicants: {{ job.title }}</h3>
+        <small class="text-muted">{{ counts.total }} total application{{ counts.total|pluralize }}</small>
+    </div>
+    <a href="{% url 'employer_dashboard' %}" class="btn btn-outline-secondary btn-sm">Back to Dashboard</a>
+</div>
+
+<div class="mb-3">
+    <a href="{% url 'job_applicants' job.id %}"
+       class="btn btn-sm {% if not status %}btn-dark{% else %}btn-outline-dark{% endif %}">
+        All ({{ counts.total }})
+    </a>
+    <a href="{% url 'job_applicants' job.id %}?status=pending"
+       class="btn btn-sm {% if status == 'pending' %}btn-warning{% else %}btn-outline-warning{% endif %}">
+        Pending ({{ counts.pending }})
+    </a>
+    <a href="{% url 'job_applicants' job.id %}?status=shortlisted"
+       class="btn btn-sm {% if status == 'shortlisted' %}btn-success{% else %}btn-outline-success{% endif %}">
+        Shortlisted ({{ counts.shortlisted }})
+    </a>
+    <a href="{% url 'job_applicants' job.id %}?status=rejected"
+       class="btn btn-sm {% if status == 'rejected' %}btn-danger{% else %}btn-outline-danger{% endif %}">
+        Rejected ({{ counts.rejected }})
+    </a>
+</div>
+
+<table class="table table-striped align-middle">
+    <thead>
+        <tr>
+            <th>Applicant</th>
+            <th>Email</th>
+            <th>Applied On</th>
+            <th>Status</th>
+            <th>Resume</th>
+            <th>Cover Letter</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for app in applications %}
+        <tr>
+            <td>
+                {{ app.user.username }}
+                {% if app.user.profilemodel.phone %}<br><small class="text-muted">{{ app.user.profilemodel.phone }}</small>{% endif %}
+                {% if app.user.profilemodel.skills %}<br><small>Skills: {{ app.user.profilemodel.skills }}</small>{% endif %}
+            </td>
+            <td>{{ app.user.email|default:"-" }}</td>
+            <td>{{ app.applied_at|date:"d M Y" }}</td>
+            <td>
+                {% if app.status == 'pending' %}<span class="badge bg-warning text-dark">Pending</span>
+                {% elif app.status == 'shortlisted' %}<span class="badge bg-success">Shortlisted</span>
+                {% else %}<span class="badge bg-danger">Rejected</span>{% endif %}
+            </td>
+            <td><a href="{{ app.resume.url }}" target="_blank" class="btn btn-sm btn-outline-primary">Download</a></td>
+            <td>
+                {% if app.cover_letter %}
+                    <button class="btn btn-sm btn-outline-secondary" type="button"
+                            data-bs-toggle="collapse" data-bs-target="#cover{{ app.id }}">
+                        Read
+                    </button>
+                {% else %}-{% endif %}
+            </td>
+            <td>
+                <form method="post" action="{% url 'update_application_status' app.id %}" class="d-inline">
+                    {% csrf_token %}
+                    <input type="hidden" name="status" value="shortlisted">
+                    <button type="submit" class="btn btn-sm btn-success"
+                            {% if app.status == 'shortlisted' %}disabled{% endif %}>Shortlist</button>
+                </form>
+                <form method="post" action="{% url 'update_application_status' app.id %}" class="d-inline">
+                    {% csrf_token %}
+                    <input type="hidden" name="status" value="rejected">
+                    <button type="submit" class="btn btn-sm btn-danger"
+                            {% if app.status == 'rejected' %}disabled{% endif %}>Reject</button>
+                </form>
+            </td>
+        </tr>
+        {% if app.cover_letter %}
+        <tr class="collapse" id="cover{{ app.id }}">
+            <td colspan="7" class="bg-light">
+                <strong>Cover letter from {{ app.user.username }}:</strong>
+                <p class="mb-0" style="white-space: pre-line;">{{ app.cover_letter }}</p>
+            </td>
+        </tr>
+        {% endif %}
+        {% empty %}
+        <tr><td colspan="7" class="text-center">No applicants found.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

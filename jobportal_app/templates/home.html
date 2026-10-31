@@ -1,0 +1,78 @@
+{% extends 'master/base.html' %}
+{% block content %}
+<h3 class="mb-3">Find Your Next Job</h3>
+
+<form method="get" class="row g-2 mb-4">
+    <div class="col-md-4">
+        <input type="text" name="q" value="{{ q }}" class="form-control" placeholder="Title, keyword, or company">
+    </div>
+    <div class="col-md-3">
+        <input type="text" name="location" value="{{ location }}" class="form-control" placeholder="Location">
+    </div>
+    <div class="col-md-3">
+        <select name="job_type" class="form-select">
+            <option value="">All types</option>
+            {% for value, label in type_choices %}
+                <option value="{{ value }}" {% if job_type == value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-md-2 d-grid">
+        <button type="submit" class="btn btn-primary">Search</button>
+    </div>
+</form>
+
+<p class="text-muted">{{ page_obj.paginator.count }} job{{ page_obj.paginator.count|pluralize }} found</p>
+
+{% for job in page_obj %}
+<div class="card mb-3">
+    <div class="card-body">
+        <div class="d-flex justify-content-between">
+            <div>
+                <h5 class="card-title mb-1">
+                    <a href="{% url 'job_detail' job.id %}" class="text-decoration-none">{{ job.title }}</a>
+                </h5>
+                <p class="mb-1">{{ job.company.name }} &middot; {{ job.location }}</p>
+                <span class="badge bg-info text-dark">{{ job.get_job_type_display }}</span>
+                {% if job.salary_min and job.salary_max %}
+                    <span class="badge bg-light text-dark border">{{ job.salary_min }} - {{ job.salary_max }}</span>
+                {% endif %}
+            </div>
+            <div class="text-end">
+                <small class="text-muted">Apply by {{ job.deadline }}</small><br>
+                <a href="{% url 'job_detail' job.id %}" class="btn btn-sm btn-outline-primary mt-2">View</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% empty %}
+<div class="alert alert-info">No jobs match your search.</div>
+{% endfor %}
+{% if page_obj.has_other_pages %}
+<nav>
+    <ul class="pagination justify-content-center">
+        {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?{% if query_string %}{{ query_string }}&{% endif %}page={{ page_obj.previous_page_number }}">Previous</a>
+            </li>
+        {% else %}
+            <li class="page-item disabled"><span class="page-link">Previous</span></li>
+        {% endif %}
+
+        {% for num in page_obj.paginator.page_range %}
+            <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+                <a class="page-link" href="?{% if query_string %}{{ query_string }}&{% endif %}page={{ num }}">{{ num }}</a>
+            </li>
+        {% endfor %}
+
+        {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?{% if query_string %}{{ query_string }}&{% endif %}page={{ page_obj.next_page_number }}">Next</a>
+            </li>
+        {% else %}
+            <li class="page-item disabled"><span class="page-link">Next</span></li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+{% endblock %}
